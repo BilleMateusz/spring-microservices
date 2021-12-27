@@ -16,6 +16,7 @@ import java.util.HashMap;
 public class CurrencyConversionController {
 
     private static final boolean USE_WEBCLIENT = true;
+    private final CurrencyExchangeProxy proxy;
 
     @GetMapping("/currency-conversion/from/{from}/to/{to}/quantity/{q}")
     public CurrencyConversion calculateCurrencyConversion(
@@ -48,6 +49,20 @@ public class CurrencyConversionController {
                 currencyConversion.getConversionMultiple(),
                 q.multiply(currencyConversion.getConversionMultiple()),
                 currencyConversion.getEnvironment()
+        );
+    }
+
+    @GetMapping("/currency-conversion-feign/from/{from}/to/{to}/quantity/{q}")
+    public CurrencyConversion calculateCurrencyConversionFeign(
+            @PathVariable String from,
+            @PathVariable String to,
+            @PathVariable BigDecimal q
+    ) {
+        CurrencyConversion currencyConversion = proxy.retrieveExchangeValue(from, to);
+        return new CurrencyConversion(currencyConversion.getId(), from, to, q,
+                currencyConversion.getConversionMultiple(),
+                q.multiply(currencyConversion.getConversionMultiple()),
+                currencyConversion.getEnvironment() + " feign"
         );
     }
 }
